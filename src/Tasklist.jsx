@@ -47,17 +47,17 @@ export function Tasklist(props) {
       </div>
       <ul className="p-3 pt-7">
         {tasks.map((task) => (
-          <li key={task.taskName} className="font-semibold flex justify-between">
+          <li key={task.taskName} className="font-semibold flex justify-between group">
             <div className="flex items-center justify-center gap-2">
               <input className="accent-violet-600 h-4 w-4 rounded-lg" type="checkbox" defaultChecked={task.isChecked} />
               <span className={`text-lg ${task.isChecked === true ? 'line-through opacity-70' : ''}`}>{task.taskName}</span>
             </div>
-            <div className="flex gap-2">
+            <div className="gap-2 hidden group-hover:flex">
               <button title="Editar tarefa">
-                <Pencil size={25} className="hover:text-blue-500 transition-colors" weight="duotone" />
+                <Pencil size={23} className="hover:text-blue-400 transition-colors" weight="duotone" />
               </button>
               <button title="Excluir tarefa">
-                <XCircle size={25} className="hover:text-red-800 transition-colors" weight="duotone" />
+                <XCircle size={23} className="hover:text-red-800 transition-colors" weight="duotone" />
               </button>
             </div>
           </li>
