@@ -1,9 +1,30 @@
-import { XCircle, Pencil, Password } from 'phosphor-react';
-import { useEffect, useRef, useState } from 'react';
+import { XCircle, Pencil, Password, MaskHappy, Smiley, SmileyNervous } from 'phosphor-react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+
+const LOCAL_STORAGE_KEY = 'tasksLocalStorage';
 export function Tasklist(props) {
   const [tasks, setTasks] = useState([]);
   const inputTask = useRef(null);
+  const tasksLeft = tasks.filter(task => !task.isChecked).length
+
+  useEffect(() => {
+    const cachedTasks = localStorage.getItem(LOCAL_STORAGE_KEY)
+    console.log(cachedTasks)
+    if(cachedTasks){
+      setTasks(JSON.parse(cachedTasks))
+    }
+  }, [])
+  
+  // Só roda apos mount
+  const firstUpdate = useRef(true);
+  useEffect(() => {
+    if(firstUpdate.current){
+      firstUpdate.current = false;
+    }else{
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks))
+    }
+  }, [tasks])
 
   function handleKeyDown(event) {
     if (event.key === 'Enter') {
@@ -18,14 +39,29 @@ export function Tasklist(props) {
     }
 
     if (!tasks.find((task) => task.taskName.toLowerCase().trim() === inputTask.current.value.toLowerCase().trim())) {
-      setTasks([...tasks, { taskName: inputTask.current.value }]);
-      // setTasks([...tasks, { taskName: inputTask.current.value, isChecked: true }]);
+      setTasks([...tasks, { id: tasks.length + 1, taskName: inputTask.current.value }]);
       inputTask.current.value = '';
     } else {
       alert('Essa já existe');
-      console.log(tasks);
     }
+    inputTask.current.focus()
   }
+
+  function handleTaskComplete(e, taskID) {
+    const newCompleteTasks = tasks.map((task) => {
+      return task.id === taskID ? {...task, isChecked: e.target.checked} : task;
+    })
+
+    setTasks(newCompleteTasks);
+  }
+  
+  function handleTaskDelete(e, taskID) {
+    const newObjTasks = tasks.filter((task) => {
+      return task.id !== taskID;
+    })
+    setTasks(newObjTasks);
+  }
+
 
   return (
     <>
@@ -49,20 +85,34 @@ export function Tasklist(props) {
         {tasks.map((task) => (
           <li key={task.taskName} className="font-semibold flex justify-between group">
             <div className="flex items-center justify-center gap-2">
-              <input className="accent-violet-600 h-4 w-4 rounded-lg" type="checkbox" defaultChecked={task.isChecked} />
+              <input
+                className="accent-violet-600 h-4 w-4 rounded-lg" 
+                type="checkbox" 
+                defaultChecked={task.isChecked}
+                onChange={(e) => handleTaskComplete(e, task.id)}
+                />
               <span className={`text-lg ${task.isChecked === true ? 'line-through opacity-70' : ''}`}>{task.taskName}</span>
             </div>
             <div className="gap-2 hidden group-hover:flex">
               <button title="Editar tarefa">
                 <Pencil size={23} className="hover:text-blue-400 transition-colors" weight="duotone" />
               </button>
-              <button title="Excluir tarefa">
+              <button title="Excluir tarefa" onClick={(e) => handleTaskDelete(e, task.id)}>
                 <XCircle size={23} className="hover:text-red-800 transition-colors" weight="duotone" />
               </button>
             </div>
           </li>
         ))}
       </ul>
+
+      {tasksLeft <= 1 ?
+        (
+          <p>Falta apenas <span className="font-bold">{tasks.filter(task => !task.isChecked).length}</span> tarefa <Smiley className="inline align-middle" weight="duotone" size={30}/></p>
+          
+        ):(
+          <p>Faltam <span className="font-bold">{tasks.filter(task => !task.isChecked).length}</span> tarefas <SmileyNervous size={30} className="inline align-middle" weight="duotone" /></p>
+        )
+      }
     </>
   );
 }
