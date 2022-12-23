@@ -62,6 +62,24 @@ export function Tasklist(props) {
     setTasks(newObjTasks);
   }
 
+  function handleTaskEdit(e, taskID) {
+    const taskWrapper = e.target.closest('li')
+    const thisCheckbox = taskWrapper.querySelector('input[type="checkbox"]')
+    const thisEditableArea = taskWrapper.querySelector('.editable__area')
+    // const newObjTasks = tasks.filter((task) => {
+    //   return task.id !== taskID;
+    // })
+    // setTasks(newObjTasks);
+    if(thisCheckbox.checked === true){
+      thisCheckbox.click()
+    }
+
+    thisEditableArea.querySelector('span').style.display = 'none';
+    console.log(thisEditableArea.querySelector('span').style.display)
+    thisEditableArea.querySelector('input').value = thisEditableArea.querySelector('span').innerText
+    thisEditableArea.querySelector('input').style.display = 'inline'
+  }
+
 
   return (
     <>
@@ -83,18 +101,21 @@ export function Tasklist(props) {
       </div>
       <ul className="p-3 pt-7">
         {tasks.map((task) => (
-          <li key={task.taskName} className="font-semibold flex justify-between group">
+          <li key={task.id} className="font-semibold flex justify-between group">
             <div className="flex items-center justify-center gap-2">
               <input
                 className="accent-violet-600 h-4 w-4 rounded-lg" 
                 type="checkbox" 
                 defaultChecked={task.isChecked}
                 onChange={(e) => handleTaskComplete(e, task.id)}
-                />
-              <span className={`text-lg ${task.isChecked === true ? 'line-through opacity-70' : ''}`}>{task.taskName}</span>
+              />
+              <div className="editable__area">
+                <span className={`text-lg ${task.isChecked === true ? 'line-through opacity-70' : ''}`}>{task.taskName}</span>
+                <input type="text" className="hidden border shadow-md border-violet-800 rounded-lg px-2 outline-none text-gray-700" />
+              </div>
             </div>
             <div className="gap-2 hidden group-hover:flex">
-              <button title="Editar tarefa">
+              <button title="Editar tarefa" onClick={(e) => handleTaskEdit(e, task.id)}>
                 <Pencil size={23} className="hover:text-blue-400 transition-colors" weight="duotone" />
               </button>
               <button title="Excluir tarefa" onClick={(e) => handleTaskDelete(e, task.id)}>
@@ -110,7 +131,7 @@ export function Tasklist(props) {
           <p>Falta apenas <span className="font-bold">{tasks.filter(task => !task.isChecked).length}</span> tarefa <Smiley className="inline align-middle" weight="duotone" size={30}/></p>
           
         ):(
-          <p>Faltam <span className="font-bold">{tasks.filter(task => !task.isChecked).length}</span> tarefas <SmileyNervous size={30} className="inline align-middle" weight="duotone" /></p>
+          <p>Faltam <span className="font-bold">{tasks.filter(task => !task.isChecked).length}</span> tarefas <SmileyNervous className="inline align-middle" weight="duotone" size={30}/></p>
         )
       }
     </>
